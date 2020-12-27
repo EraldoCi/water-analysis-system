@@ -10,30 +10,18 @@
   <li><a href="#30-desenvolvimento">Desenvolvimento</a>
     <ol>
       <li><a href="#31-arduino-uno">Arduino uno</a></li>
-      <li><a href="#placa-de-circuito-impresso">Placa de circuito impresso</a></li>
+      <li><a href="#32-placa-de-circuito-impresso">Placa de circuito impresso</a></li>
       <li><a href="#interface">Interface</a></li>
-      <li><a href="#firebase">Firebase</a></li>
     </ol>
   </li>
-  <li><a href="#softwares-de-simulação">Softwares de simulação</a></li>
-  <li><a href="#lista-de-materiais">Lista de materiais</a></li>
-  <li><a href="#5_0-referências">Referências</a></li>
+  <li><a href="#40-lista-de-materiais">Lista de materiais</a>
+    <ol>
+      <li><a href="#41-softwares-de-simulação">Softwares de simulação</a></li>
+    </ol>
+  </li>
+  <li><a href="#50-referências">Referências</a></li>
 </ol>
 
-<!-- 
-1. Objetivo
-2. Proposta
-3. Desenvolvimento
-  3.1 Arduino Uno
-  3.2 Placa de circuito impresso
-    3.2.1 Filtro RC
-    3.2.2 Ajuste de offset
-    3.2.3 Circuito base para potenciostato
-    3.2.4 Conversor corrente-tensão
-  3.3 Interface + Firebase
-4. Lista de materiais
-5. Referências 
--->
 ## 1.0 Objetivo
 
 Elaboração de um projeto de hardware que é capaz de detectar a presença de sal na água.
@@ -75,7 +63,7 @@ Este módulo do projeto é responsável pelo tratamento do sinal de onda quadrad
 
 Na figura abaixo tem-se o esquema do circuito projetado, e destacam-se quatro partes (cada foi parte simulada separadamente). 
 <p align="center">
-  <img width="700px" src=".github/circuit.png">
+  <img width="700px" src=".github/circuit_schema.png">
 </p>
 
 Na figura abaixo observa-se o resultado final da placa do circuito: 
@@ -86,15 +74,51 @@ Na figura abaixo observa-se o resultado final da placa do circuito:
 </p>
 
 
-### 3.3 Fitro RC
+### Circuito integrador
 
-<!-- Mostrar cálculos e circuito -->
-
-Foi utilizado um filtro RC passa baixas para modificar o sinal PWM para um onda triangular ou rampa. Observa-se na figura do circuito, destacado em azul os valores do resistor e capacitor, tendo então:
+A segunda parte do circuito consiste em um integrador, sendo este responsável pela conversão da onda retangular para triangular. Tendo como referência o circuito básico de um integrador (figura 5), é importante atentar-se a amplitude do sinal de saída e ajuste de offset.
 
 <p align="center">
-  <img width="450px" src=".github/rc_filter.png">
+  <img width="500px" src=".github/base_integrator.png"><br>
+  Figura 5: Circuito base de um integrador (<a href="#50-referências">4</a>)
 </p>
+
+Uma vez que sabe-se as características da tensão de entrada, é necessário estabelecer os valores dos componentes que serão utilizados.
+Partindo da fórmula presente na figura acima tem-se que:
+
+V*out* = Vp/2*f*RC
+
+E que V*out* é a tensão desejada de saída e Vp é a tensão de pico. É possível partir para os cálculos já que os seguintes valores são conhecidos:
+
+Vout = 2V,
+Vp = 2V,
+*f* = 31kHz,
+R1 = 4.7kOhms
+
+O valor de R1 é abirtrário, basta substituir pelo valor desejado.
+Substituindo os valores na equação, tem-se então:
+
+2 = 2/(2 * 31k * R1 *C)
+
+C = 1/ (62k * 4.7k)
+
+C = 3.43*n*F
+
+Neste caso será utilizado um capacitor de **3.3*n*F**.
+E na figura abaixo pode-se observar o circuito final do integrador. É importante destacar a presença do **R2**, resistor de 47kOhms, pois este é responsável pelo ajuste de offset do sinal.
+
+<p align="center">
+  <img width="300px" src=".github/integrator2.png"><br>
+  Figura: Circuito integrador
+</p>
+
+**Resultado da simulação**
+
+<p align="center">
+  <img width="500px" src=".github/integrator_simulation.png"><br>
+  Figura: Simulação do integrador
+</p>
+
 
 ### 3.4 Ajuste de Offset
 
@@ -137,9 +161,11 @@ Levando em consideração as condições de análise, foi simulado o módulo de 
 ### 3.7 ESP01
 
 O ESP01 é um microchip de baixo custo que vem sendo amplamente utilizado em protótipos de projetos de IoT e pode ser programável pela plataforma Arduino.
-O módulo ESP-01 suporta o padrão IEEE 802.11 b/g/n, protocolo TCP/IP, modo estação e ponto de acesso, isto permite que seja utilizado para conexão WiFi, controle e criação de redes e comunicação entre aplicações e dispositivos.<br>
-E este módulo é utilizado para receber e tratar os sinais de saída do circuito. Uma vez que o ESP é configurado para realizar a leitura do sinal, o microcontrolador irá enviar os dados para o Firebase, onde haverá conexão com um banco de dados em tempo real que por sua vez amazenará estas informações. E por fim esses dados serão consultados pela [interface gráfica](#interface-gráfica).<br>
-O uso do ESP + Firebase permite que o usuário possa visualizar os dados remotamente.
+O módulo ESP-01 suporta o padrão IEEE 802.11 b/g/n, protocolo TCP/IP, modo estação e ponto de acesso, isto permite que seja utilizado para conexão WiFi, controle e criação de redes e comunicação entre aplicações e dispositivos.
+
+Este módulo é utilizado para receber e tratar os sinais de saída do circuito. Uma vez que o ESP é configurado para realizar a leitura do sinal, o microcontrolador irá enviar os dados para o Firebase, onde haverá conexão com um banco de dados em tempo real. E por fim esses dados serão consultados pela [interface](#interface).
+
+O uso da conectividade permite que o usuário possa visualizar os dados remotamente. Para mais detalhes verifique o [código](./embedded_system/esp_firebase.ino) utilizado no ESP. 
 
 
 ### 3.8 Eletrodo
@@ -187,3 +213,14 @@ Lista de componentes e hardware utilizado:
 [2](#) Crespo, J. R. (2017). Electrochemical-SERS analysis of R6G using a microcontroller based Portable Potentiostat (Doctoral dissertation).<br>
 
 [3](#) WEBSTER, H. E. J. G.Measurement, Instrumentation, and Sensors Handbook:Electromagnetic, Optical, Radiation, Chemical, and Biomedical Measurement. 2. ed.[S.l.]: CRC Press, 2014. 1921 p. ISBN 1439848912.<br>
+
+[4](#) Malvino, Albert Paul; e Bates, David J.; Eletrônica, vol. 1 e vol. 2, 8a ed., Ed. McGraw Hill-Bookman, São Paulo, SP, 2016. Também em recurso eletrônico.
+
+
+## Atulizações futuras
+
+[ ] Aquisição de dados de modo offline.<br>
+[ ] Remodelagem da placa.<br>
+[ ] Ajustes de segurança no cicuito: regulador de tensão, corrente, etc.<br>
+[ ] Comunicação entre ESP e Arduino.<br>
+[ ] Interface gráfica (web de preferência).
