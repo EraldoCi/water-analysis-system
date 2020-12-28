@@ -219,8 +219,12 @@ Lista de componentes e hardware utilizado:
 
 ## Atulizações futuras
 
-[ ] Aquisição de dados de modo offline.<br>
-[ ] Remodelagem da placa.<br>
-[ ] Ajustes de segurança no cicuito: regulador de tensão, corrente, etc.<br>
-[ ] Comunicação entre ESP e Arduino.<br>
-[ ] Interface gráfica (web de preferência).
+- [ ] Aquisição de dados de modo offline.
+
+- [ ] Remodelagem da placa.
+
+- [ ] Ajustes de segurança no cicuito: regulador de tensão, corrente, etc.
+
+- [ ] Comunicação entre ESP e Arduino.
+
+- [ ] Interface gráfica (web de preferência).
